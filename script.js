@@ -2,6 +2,28 @@
 let tabs = [];
 let currentTabId = null;
 let renamingTabId = null;
+let hasSyFuPass = false;
+
+// 初期化
+document.addEventListener('DOMContentLoaded', function() {
+    loadTabs();
+    loadSettings();
+    renderTabs();
+    if (currentTabId) {
+        switchTab(currentTabId);
+    }
+});
+
+// 設定の読み込み
+function loadSettings() {
+    try {
+        const savedPass = localStorage.getItem('syfu-has-pass');
+        hasSyFuPass = savedPass === 'true';
+        document.getElementById('hasSyFuPass').checked = hasSyFuPass;
+    } catch (error// タブとデータの管理
+let tabs = [];
+let currentTabId = null;
+let renamingTabId = null;
 
 // 初期化
 document.addEventListener('DOMContentLoaded', function() {
@@ -11,6 +33,27 @@ document.addEventListener('DOMContentLoaded', function() {
         switchTab(currentTabId);
     }
 });
+
+// 設定の読み込み
+function loadSettings() {
+    try {
+        const savedPass = localStorage.getItem('syfu-has-pass');
+        hasSyFuPass = savedPass === 'true';
+        document.getElementById('hasSyFuPass').checked = hasSyFuPass;
+    } catch (error) {
+        console.error('設定読み込みエラー:', error);
+    }
+}
+
+// SyFu Pass設定の切り替え
+function toggleSyFuPass() {
+    hasSyFuPass = document.getElementById('hasSyFuPass').checked;
+    try {
+        localStorage.setItem('syfu-has-pass', hasSyFuPass.toString());
+    } catch (error) {
+        console.error('設定保存エラー:', error);
+    }
+}
 
 // タブデータの読み込み
 function loadTabs() {
@@ -311,7 +354,7 @@ function displayResults(results) {
                     </span>
                 `).join('')}
             </div>
-            <div class="result-hint">この組み合わせに決定（決済データを削除）</div>
+            <div class="result-hint">この組み合わせに決定（クリックして決済データを削除）</div>
         </div>
     `).join('');
     
