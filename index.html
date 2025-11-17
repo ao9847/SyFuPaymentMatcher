@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SyFu Payment Matcher</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card main-card">
+            <h1 class="title">SyFu Payment Matcher</h1>
+            <p class="subtitle">決済データのBINDに最適な組み合わせを見つけよう</p>
+
+            <div class="grid">
+                <!-- 左側: 決済データ一覧 -->
+                <div class="section">
+                    <div class="payment-list-section">
+                        <label class="label">決済データ一覧</label>
+                        <div class="payment-list" id="paymentList">
+                            <!-- 決済データがここに表示される -->
+                        </div>
+                    </div>
+
+                    <div class="add-payment-section">
+                        <label class="label">新しい決済データを追加</label>
+                        <div class="form-group">
+                            <input 
+                                type="text" 
+                                id="paymentName" 
+                                placeholder="決済名（例：ランチ代、書籍購入）"
+                                class="input"
+                            >
+                            <div class="input-row">
+                                <input 
+                                    type="number" 
+                                    id="paymentAmount" 
+                                    placeholder="金額"
+                                    class="input"
+                                >
+                                <input 
+                                    type="date" 
+                                    id="paymentDate"
+                                    class="input"
+                                >
+                            </div>
+                        </div>
+                        <button onclick="addPayment()" class="btn btn-primary">
+                            + 決済データを追加
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 右側: 検索 -->
+                <div class="section">
+                    <div class="target-section">
+                        <label class="label">目標金額</label>
+                        <input 
+                            type="number" 
+                            id="targetAmount" 
+                            value="5000"
+                            class="input target-input"
+                        >
+                    </div>
+
+                    <button onclick="findCombinations()" class="btn btn-search" id="searchBtn">
+                        🔍 最適な組み合わせを検索
+                    </button>
+
+                    <div id="searchTime" class="search-info" style="display: none;">
+                        ⓘ 検索時間: <span id="timeValue">0</span>ms
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 検索結果 -->
+        <div id="resultsSection" class="card results-card" style="display: none;">
+            <h2 class="results-title">検索結果 <span class="results-subtitle">(上位10件)</span></h2>
+            <div id="resultsList" class="results-list">
+                <!-- 検索結果がここに表示される -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
