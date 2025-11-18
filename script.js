@@ -2,58 +2,15 @@
 let tabs = [];
 let currentTabId = null;
 let renamingTabId = null;
-let hasSyFuPass = false;
-
-// 初期化
-document.addEventListener('DOMContentLoaded', function() {
-    loadTabs();
-    loadSettings();
-    renderTabs();
-    if (currentTabId) {
-        switchTab(currentTabId);
-    }
-});
-
-// 設定の読み込み
-function loadSettings() {
-    try {
-        const savedPass = localStorage.getItem('syfu-has-pass');
-        hasSyFuPass = savedPass === 'true';
-        document.getElementById('hasSyFuPass').checked = hasSyFuPass;
-    } catch (error// タブとデータの管理
-let tabs = [];
-let currentTabId = null;
-let renamingTabId = null;
 
 // 初期化
 document.addEventListener('DOMContentLoaded', function() {
     loadTabs();
     renderTabs();
     if (currentTabId) {
-        switchTab(currentTabId);
+        renderPayments();
     }
 });
-
-// 設定の読み込み
-function loadSettings() {
-    try {
-        const savedPass = localStorage.getItem('syfu-has-pass');
-        hasSyFuPass = savedPass === 'true';
-        document.getElementById('hasSyFuPass').checked = hasSyFuPass;
-    } catch (error) {
-        console.error('設定読み込みエラー:', error);
-    }
-}
-
-// SyFu Pass設定の切り替え
-function toggleSyFuPass() {
-    hasSyFuPass = document.getElementById('hasSyFuPass').checked;
-    try {
-        localStorage.setItem('syfu-has-pass', hasSyFuPass.toString());
-    } catch (error) {
-        console.error('設定保存エラー:', error);
-    }
-}
 
 // タブデータの読み込み
 function loadTabs() {
@@ -67,7 +24,7 @@ function loadTabs() {
             // 初回起動時のデフォルトタブ
             tabs = [{
                 id: Date.now(),
-                name: 'メインタブ',
+                name: 'MANEKINEKO #1',
                 payments: [
                     { id: 1, amount: 1500, name: 'ランチ代', date: '2025-01-15' },
                     { id: 2, amount: 2300, name: 'コンビニ', date: '2025-01-18' },
@@ -81,7 +38,7 @@ function loadTabs() {
         console.error('タブ読み込みエラー:', error);
         tabs = [{
             id: Date.now(),
-            name: 'メインタブ',
+            name: 'MANEKINEKO #1',
             payments: []
         }];
         currentTabId = tabs[0].id;
@@ -129,7 +86,7 @@ function switchTab(tabId) {
 function addNewTab() {
     const newTab = {
         id: Date.now(),
-        name: `タブ ${tabs.length + 1}`,
+        name: `MANEKINEKO #${tabs.length + 1}`,
         payments: []
     };
     tabs.push(newTab);
