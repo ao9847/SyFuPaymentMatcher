@@ -3,25 +3,113 @@ let tabs = [];
 let currentTabId = null;
 let renamingTabId = null;
 
-// 過去30日分の為替レートデータベース（USD/JPY）
-const exchangeRates = generateExchangeRates();
 
-function generateExchangeRates() {
+// 為替レートキャッシュ
+let exchangeRates = {};
+let ratesLoaded = false;
+
+// 為替レートを外部APIから取得して自動更新
+async function loadExchangeRates() {
+    try {
+        // localStorageから保存済みデータを確認
+        const cachedData = localStorage.getItem('exchange-rates-cache');
+        const lastUpdate = localStorage.getItem('exchange-rates-last-update');
+        const today = new Date().toISOString().split('T')[0];
+        
+        // 今日既に更新済みならキャッシュを使用
+        if (cachedData && lastUpdate === today) {
+            exchangeRates = JSON.parse(cachedData);
+            ratesLoaded = true;
+            console.log('為替レート読み込み完了（キャッシュ）:', Object.keys(exchangeRates).length + '日分');
+            return;
+        }
+        
+        console.log('為替レートを更新中...');
+        const rates = {};
+        const today_date = new Date();
+        
+        // 過去30日分のレートを取得
+        for (let i = 0; i < 30; i++) {
+            const date = new Date(today_date);
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toISOString().split('T')[0];
+            
+            try {
+                // プライマリURL（jsdelivr CDN）
+                let url = `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${dateStr}/v1/currencies/usd.min.json`;
+                let response = await fetch(url);
+                
+                // フォールバック（Cloudflare Pages）
+                if (!response.ok) {
+                    url = `https://${dateStr}.currency-api.pages.dev/v1/currencies/usd.min.json`;
+                    response = await fetch(url);
+                }
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    // USD -> JPY レート
+                    rates[dateStr] = data.usd.jpy;
+                } else {
+                    // データがない場合は前日のレートを使用
+                    const prevDate = new Date(date);
+                    prevDate.setDate(prevDate.getDate() - 1);
+                    const prevDateStr = prevDate.toISOString().split('T')[0];
+                    rates[dateStr] = rates[prevDateStr] || 150.0;
+                }
+            } catch (error) {
+                console.warn(`レート取得失敗 (${dateStr}):`, error);
+                // エラー時は前日のレートまたはデフォルト値
+                if (i > 0) {
+                    const prevDate = new Date(date);
+                    prevDate.setDate(prevDate.getDate() - 1);
+                    const prevDateStr = prevDate.toISOString().split('T')[0];
+                    rates[dateStr] = rates[prevDateStr] || 150.0;
+                } else {
+                    rates[dateStr] = 150.0;
+                }
+            }
+            
+            // API負荷軽減のため少し待機
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+        exchangeRates = rates;
+        ratesLoaded = true;
+        
+        // localStorageに保存（1日1回更新）
+        try {
+            localStorage.setItem('exchange-rates-cache', JSON.stringify(rates));
+            localStorage.setItem('exchange-rates-last-update', today);
+        } catch (e) {
+            console.warn('為替レートキャッシュ保存失敗:', e);
+        }
+        
+        console.log('為替レート更新完了:', Object.keys(exchangeRates).length + '日分');
+        
+    } catch (error) {
+        console.error('為替レート取得エラー:', error);
+        // エラー時はデフォルト値を使用
+        generateDefaultRates();
+    }
+}
+
+// デフォルトレート生成（API取得失敗時のフォールバック）
+function generateDefaultRates() {
     const rates = {};
     const today = new Date();
-    const baseRate = 150.0; // 基準レート
+    const baseRate = 150.0;
     
     for (let i = 0; i < 30; i++) {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
         const dateStr = date.toISOString().split('T')[0];
-        
-        // 多少の変動を加える（±3円程度）
         const variation = (Math.random() - 0.5) * 6;
         rates[dateStr] = parseFloat((baseRate + variation).toFixed(2));
     }
     
-    return rates;
+    exchangeRates = rates;
+    ratesLoaded = true;
+    console.log('デフォルト為替レート生成:', Object.keys(exchangeRates).length + '日分');
 }
 
 // 日付から為替レートを取得
@@ -50,11 +138,12 @@ function convertYenToUsd(yen, dateStr) {
 
 // 初期化
 document.addEventListener('DOMContentLoaded', function() {
-    loadTabs();
-    renderTabs();
-    if (currentTabId) {
+    // 為替レートを読み込んでからタブを初期化
+    loadExchangeRates().then(() => {
+        loadTabs();
+        renderTabs();
         renderPayments();
-    }
+    });
 });
 
 // タブデータの読み込み
@@ -353,7 +442,7 @@ function displayResults(results, targetAmountUsd) {
                     ${index === 0 ? '<span class="badge-best">最適</span>' : ''}
                     <span class="result-total">合計: $${result.totalUsd.toFixed(2)} (¥${result.totalYen.toLocaleString()})</span>
                     <span class="result-diff ${result.diff < 0.01 ? 'perfect' : ''}">
-                        ${result.diff < 0.01 ? '(ぴったり!)' : `(差額: ${result.diff.toFixed(2)})`}
+                        ${result.diff < 0.01 ? '(ぴったり!)' : `差額: $${result.diff.toFixed(2)}`}
                     </span>
                 </div>
                 <span class="result-count">${result.items.length}件</span>
@@ -365,11 +454,12 @@ function displayResults(results, targetAmountUsd) {
                     return `
                     <span class="item-tag">
                         ${escapeHtml(item.name)} (¥${item.amount.toLocaleString()})
+                        ${item.date ? `<span class="item-date"> ${item.date}</span>` : ''}
                     </span>
                     `;
                 }).join('')}
             </div>
-            <div class="result-hint">この組み合わせに決定（クリックして決済データを削除）</div>
+            <div class="result-hint">この組み合わせに決定（選択して決済データ一覧から削除）</div>
         </div>
     `).join('');
     
