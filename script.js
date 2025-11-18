@@ -311,7 +311,7 @@ function displayResults(results) {
                     </span>
                 `).join('')}
             </div>
-            <div class="result-hint">この組み合わせに決定（クリックして決済データを削除）</div>
+            <div class="result-hint">この組み合わせに決定（選択して決済データ一覧から削除）</div>
         </div>
     `).join('');
     
