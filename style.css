@@ -305,9 +305,20 @@ body {
     white-space: nowrap;
 }
 
+.payment-usd {
+    color: #34d399;
+    font-weight: 600;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
 @media (min-width: 640px) {
     .payment-amount {
         font-size: 1rem;
+    }
+    
+    .payment-usd {
+        font-size: 0.875rem;
     }
 }
 
