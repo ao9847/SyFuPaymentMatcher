@@ -386,7 +386,7 @@ function displayResults(results, targetAmountUsd) {
 function useResult(resultIndex) {
     const result = window.currentResults[resultIndex];
     
-    if (!confirm(`この組み合わせ（合計 ${result.totalUsd.toFixed(2)} / ¥${result.totalYen.toLocaleString()}）の決済データを削除しますか？`)) {
+    if (!confirm(`この組み合わせ（合計 $${result.totalUsd.toFixed(2)} / ¥${result.totalYen.toLocaleString()}）の決済データを削除しますか？`)) {
         return;
     }
     
