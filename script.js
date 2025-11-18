@@ -69,7 +69,7 @@ function loadTabs() {
             // 初回起動時のデフォルトタブ
             tabs = [{
                 id: Date.now(),
-                name: 'メインタブ',
+                name: 'MANEKINEKO #1',
                 payments: [
                     { id: 1, amount: 1500, name: 'ランチ代', date: '2025-01-15' },
                     { id: 2, amount: 2300, name: 'コンビニ', date: '2025-01-18' },
@@ -83,7 +83,7 @@ function loadTabs() {
         console.error('タブ読み込みエラー:', error);
         tabs = [{
             id: Date.now(),
-            name: 'メインタブ',
+            name: 'MANEKINEKO #1',
             payments: []
         }];
         currentTabId = tabs[0].id;
@@ -131,7 +131,7 @@ function switchTab(tabId) {
 function addNewTab() {
     const newTab = {
         id: Date.now(),
-        name: `タブ ${tabs.length + 1}`,
+        name: `MANEKINEKO #${tabs.length + 1}`,
         payments: []
     };
     tabs.push(newTab);
@@ -222,7 +222,7 @@ function renderPayments() {
                 <div class="payment-main">
                     <span class="payment-name">${escapeHtml(payment.name)}</span>
                     <span class="payment-amount">¥${payment.amount.toLocaleString()}</span>
-                    <span class="payment-usd">(${usdAmount.toFixed(2)})</span>
+                    <span class="payment-usd">($${usdAmount.toFixed(2)})</span>
                 </div>
                 ${payment.date ? `<span class="payment-date">${payment.date} (レート: ¥${rate.toFixed(2)}/USD)</span>` : `<span class="payment-date">日付なし (レート: ¥${rate.toFixed(2)}/USD)</span>`}
             </div>
@@ -351,7 +351,7 @@ function displayResults(results, targetAmountUsd) {
             <div class="result-header">
                 <div class="result-info">
                     ${index === 0 ? '<span class="badge-best">最適</span>' : ''}
-                    <span class="result-total">合計: ${result.totalUsd.toFixed(2)} (¥${result.totalYen.toLocaleString()})</span>
+                    <span class="result-total">合計: $${result.totalUsd.toFixed(2)} (¥${result.totalYen.toLocaleString()})</span>
                     <span class="result-diff ${result.diff < 0.01 ? 'perfect' : ''}">
                         ${result.diff < 0.01 ? '(ぴったり!)' : `(差額: ${result.diff.toFixed(2)})`}
                     </span>
@@ -364,8 +364,7 @@ function displayResults(results, targetAmountUsd) {
                     const rate = getExchangeRate(item.date);
                     return `
                     <span class="item-tag">
-                        ${escapeHtml(item.name)} (¥${item.amount.toLocaleString()} → ${usdAmount.toFixed(2)})
-                        ${item.date ? `<span class="item-date">• ${item.date} @¥${rate.toFixed(2)}</span>` : ''}
+                        ${escapeHtml(item.name)} (¥${item.amount.toLocaleString()})
                     </span>
                     `;
                 }).join('')}
