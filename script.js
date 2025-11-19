@@ -182,13 +182,9 @@ function convertYenToUsd(yen, dateStr) {
     const rate = getExchangeRate(dateStr);
     let usd = yen / rate;
 
-    // 小数点切り上げ
-    usd = Math.ceil(usd);
-
-    // SyFu Passが有効な場合は+20%して再度切り上げ
+    // SyFu Passが有効な場合は+20%
     if (settings.syFuPassEnabled) {
-        usd = Math.ceil(usd * 1.2);
-    }
+        usd = usd * 1.2;
 
     return usd;
 }
