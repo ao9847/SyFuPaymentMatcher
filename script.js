@@ -50,6 +50,9 @@ function updateSettings() {
     settings.syFuPassEnabled = document.getElementById('syFuPassEnabled').checked;
     saveSettings();
     console.log('設定を更新しました:', settings);
+
+    // 設定変更を反映するため表示を更新
+    renderPayments();
 }
 
 // 為替レートを外部APIから取得して自動更新
@@ -177,7 +180,17 @@ function getExchangeRate(dateStr) {
 // 円をドルに変換
 function convertYenToUsd(yen, dateStr) {
     const rate = getExchangeRate(dateStr);
-    return yen / rate;
+    let usd = yen / rate;
+
+    // 小数点切り上げ
+    usd = Math.ceil(usd);
+
+    // SyFu Passが有効な場合は+20%して再度切り上げ
+    if (settings.syFuPassEnabled) {
+        usd = Math.ceil(usd * 1.2);
+    }
+
+    return usd;
 }
 
 // 初期化
