@@ -3,10 +3,54 @@ let tabs = [];
 let currentTabId = null;
 let renamingTabId = null;
 
+// 設定
+let settings = {
+    syFuPassEnabled: false
+};
 
 // 為替レートキャッシュ
 let exchangeRates = {};
 let ratesLoaded = false;
+
+// 設定の読み込み
+function loadSettings() {
+    try {
+        const savedSettings = localStorage.getItem('syfu-settings');
+        if (savedSettings) {
+            settings = JSON.parse(savedSettings);
+        }
+    } catch (error) {
+        console.error('設定読み込みエラー:', error);
+    }
+}
+
+// 設定の保存
+function saveSettings() {
+    try {
+        localStorage.setItem('syfu-settings', JSON.stringify(settings));
+    } catch (error) {
+        console.error('設定保存エラー:', error);
+    }
+}
+
+// 設定モーダルを開く
+function openSettingsModal() {
+    // 現在の設定をUIに反映
+    document.getElementById('syFuPassEnabled').checked = settings.syFuPassEnabled;
+    document.getElementById('settingsModal').style.display = 'flex';
+}
+
+// 設定モーダルを閉じる
+function closeSettingsModal() {
+    document.getElementById('settingsModal').style.display = 'none';
+}
+
+// 設定を更新
+function updateSettings() {
+    settings.syFuPassEnabled = document.getElementById('syFuPassEnabled').checked;
+    saveSettings();
+    console.log('設定を更新しました:', settings);
+}
 
 // 為替レートを外部APIから取得して自動更新
 async function loadExchangeRates() {
@@ -138,6 +182,9 @@ function convertYenToUsd(yen, dateStr) {
 
 // 初期化
 document.addEventListener('DOMContentLoaded', function() {
+    // 設定を読み込む
+    loadSettings();
+
     // 為替レートを読み込んでからタブを初期化
     loadExchangeRates().then(() => {
         loadTabs();
@@ -524,8 +571,13 @@ document.addEventListener('keypress', function(e) {
 
 // モーダルの背景クリックで閉じる
 document.addEventListener('click', function(e) {
-    const modal = document.getElementById('renameModal');
-    if (e.target === modal) {
+    const renameModal = document.getElementById('renameModal');
+    const settingsModal = document.getElementById('settingsModal');
+
+    if (e.target === renameModal) {
         closeRenameModal();
+    }
+    if (e.target === settingsModal) {
+        closeSettingsModal();
     }
 });
