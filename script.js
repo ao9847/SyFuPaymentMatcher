@@ -185,6 +185,7 @@ function convertYenToUsd(yen, dateStr) {
     // SyFu Passが有効な場合は+20%
     if (settings.syFuPassEnabled) {
         usd = usd * 1.2;
+    }
 
     return usd;
 }
