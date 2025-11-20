@@ -5,6 +5,7 @@ let renamingTabId = null;
 
 // 設定
 let settings = {
+    roundUpEnabled: false,
     syFuPassEnabled: false
 };
 
@@ -36,6 +37,7 @@ function saveSettings() {
 // 設定モーダルを開く
 function openSettingsModal() {
     // 現在の設定をUIに反映
+    document.getElementById('roundUpEnabled').checked = settings.roundUpEnabled;
     document.getElementById('syFuPassEnabled').checked = settings.syFuPassEnabled;
     document.getElementById('settingsModal').style.display = 'flex';
 }
@@ -47,12 +49,17 @@ function closeSettingsModal() {
 
 // 設定を更新
 function updateSettings() {
+    settings.roundUpEnabled = document.getElementById('roundUpEnabled').checked;
     settings.syFuPassEnabled = document.getElementById('syFuPassEnabled').checked;
     saveSettings();
     console.log('設定を更新しました:', settings);
 
     // 設定変更を反映するため表示を更新
     renderPayments();
+
+    // 検索結果をクリア（再検索が必要なため）
+    document.getElementById('resultsSection').style.display = 'none';
+    document.getElementById('searchTime').style.display = 'none';
 }
 
 // 為替レートを外部APIから取得して自動更新
@@ -182,9 +189,18 @@ function convertYenToUsd(yen, dateStr) {
     const rate = getExchangeRate(dateStr);
     let usd = yen / rate;
 
+    // 小数点切り上げが有効な場合
+    if (settings.roundUpEnabled) {
+        usd = Math.ceil(usd);
+    }
+
     // SyFu Passが有効な場合は+20%
     if (settings.syFuPassEnabled) {
         usd = usd * 1.2;
+        // 切り上げが有効な場合は+20%後も切り上げ
+        if (settings.roundUpEnabled) {
+            usd = Math.ceil(usd);
+        }
     }
 
     return usd;
