@@ -53,6 +53,10 @@ function updateSettings() {
 
     // 設定変更を反映するため表示を更新
     renderPayments();
+
+    // 検索結果をクリア（再検索が必要なため）
+    document.getElementById('resultsSection').style.display = 'none';
+    document.getElementById('searchTime').style.display = 'none';
 }
 
 // 為替レートを外部APIから取得して自動更新
